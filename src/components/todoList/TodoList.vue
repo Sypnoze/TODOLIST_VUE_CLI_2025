@@ -15,6 +15,24 @@ onMounted(async () => {
   DB.setApiURL(props.apiURL);
   todos.splice(todos.length, 0, ...(await DB.findAll()));
 });
+
+// FONCTIONS CRUD
+// createItem
+// event: on-submit-add-form
+const createItem = async (content) => {
+  const todo = await DB.create(content);
+  todos.push(todo);
+};
+
+// deleteOneById(id)
+// event: on-delete
+const deleteOneById = async (id) => {
+  await DB.deleteOneById(id);
+  todos.splice(
+    todos.findIndex((todo) => todo.id === id),
+    1
+  );
+};
 </script>
 
 <template>
@@ -26,7 +44,7 @@ onMounted(async () => {
     <h2 id="todo-heading" class="sr-only">Todo list</h2>
 
     <!-- INPUT PRINCIPAL -->
-    <TodoListAddForm />
+    <TodoListAddForm @on-submit-add-form="createItem($event)" />
 
     <!-- LISTE DES TODOS -->
     <ul
@@ -35,7 +53,12 @@ onMounted(async () => {
       aria-label="Todos"
     >
       <!-- ITEM (exemple) -->
-      <todo v-for="todo in todos" :key="todo.id" :todo="todo" />
+      <todo
+        v-for="todo in todos"
+        :key="todo.id"
+        :todo="todo"
+        @on-delete="deleteOneById($event)"
+      />
     </ul>
 
     <!-- FOOTER DE LISTE -->
